@@ -5,7 +5,7 @@
 <configuration>
 <properties resource="db.properties" />
 
-<!-- 开启日志 -->
+<!-- 开启日志 --><!-- 冲突实力 -->
 
 <settings>
 
