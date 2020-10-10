@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="slef.test.mapper.PersonMapper">
+<!-- 声明开启namespace二级缓存(文件全局缓存)  mybatis自带的二级缓存 -->
+<!-- <cache></cache> -->
+<!--  或者<cache/>  -->
+
+
+
+
+<!--整合第三方二级缓存  ehcache   -->
+<!-- 必要条件  ehcache-core.jar , slf4j-api.jar,   mybatis-ehcache.jar-->
+<!-- 编写ehacche文件-->
+
+<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache">
+<property name="" value=""/>覆盖ehcache.xml文件中的默认缓存配置
+</cache> -->
+
+
+
+                            <!-- Mybatis提取公共sql片段 -->
+<sql id="objectWithIds">
+	 <where>
+	 <if test="ids!= null and ids.size>0 ">
+	 <foreach collection="ids"  open="and id in("  close=")"   item="id" separator=",">
+	  #{id}
+	 </foreach>
+	 </if> 
+	 </where> 
+</sql>
+
+
+
+
+
+
+
+
+
+
+
+
+                                            <!-- 关闭局部二级缓存 -->
+                                            <!-- useCache="false" -->
+	 <select id="queryPersonById"  resultType="Person" parameterType="int" useCache="false">
+	 select * from person 
+	 where 
+	 <if test="id!= null and id!='' ">
+	 id = #{id}
+	 </if> 
+	 </select>
+	 
+									 <!--  
+									  a: 基本类型：#{ 任意值 }自动给string添加‘ ’
+								      b: ${  value  }原样输出，但是适合动态排序   
+									                                             -->
+<!--模糊查询 
+			<select id="queryPersonByName"  resultType="Person" parameterType="String">
+				 select * from person where name like '%${value}%'
+			</select>																
+																						-->
+	  																		
+	 
+	 
+	 
+<!-- 	 <select id="queryPersonByNameAndAge"  resultType="Person" parameterType="Person">
+	 select * from person 
+	 where  1=1                                   
+	 <if test="name!= null and name!='' ">         解决and遗留问题
+	      and name = #{name}                           方式一
+	 </if>
+	  <if test="age!= null and age!='' ">
+	      and age = #{age}
+	 </if>
+	 </select> -->
+	 
+	 
+	<select id="queryPersonByNameAndAge"  resultType="Person" parameterType="Person">
+	 select * from person 
+	 <where>  
+	 <if test="name!= null and name!='' ">
+	      and name = #{name}                        <!-- 解决and遗留问题 -->
+	 </if>                                            <!--  方式二 -->
+	  <if test="age!= null and age!='' ">
+	      and age = #{age}
+	 </if>
+	 </where>
+	 </select>
+	 
+	 <!-- foreach 迭代    对象传参-->
+	 <!-- 简单类型数组迭代形式中    parameterType参数为  XX[]  
+	 编写代码中传递的是什么参数名，在mapper.xml中必须用array代替该数组 -->
+	 <!-- List同上  -->
+	 <!-- 对象数组中  parameterType参数为  Object[]  -->
+	 
+	<select id="queryPersonByIds"  resultType="Person" parameterType="Grade">
+	 select * from person 
+	 
+	 <!-- 若 "objectWithIds"  sql片段在其他mapper.xml文件中
+	 （如该sql片段存在于abcMapper.xml）
+	 但是在当前mapper.xml文件中需要引用 ，则需要加上namespace
+	 （例：slef.test.mapper.abcMapper.objectWithIds） 
+	 -->
+	 <!--  <include refid="slef.test.mapper.abcMapper.objectWithIds"></include>  -->
+	 
+	 
+   		   <include refid="objectWithIds"></include>
+	 </select>
+	 
+	 
+	 
+	 
+	<delete id="deletePersonByName" parameterType="string" >
+	 delete from person where name = #{name} 
+	</delete>
+	
+	<update id="updataPerson"  parameterType="Person">
+	update  person set name=#{name},age=#{age},sex=#{sex} where id = #{id} 
+	</update>
+	
+	
+	 <!-- 使用转换器 如果类中属性和表中的字段类型能够合理识别则resultType（string->varcahr），否则resultMap(Boolean->int)-->
+	
+	 <select id="queryPersonByIdWithConv"  resultMap="PersonResult" parameterType="int">
+	 select * from person where id = #{id}
+	 </select>
+	 <resultMap type="Person" id="PersonResult">
+	 			<!-- 主键 id与非主键result -->
+	 			<id property="id"  column="id"/>
+	 			<result property="name"  column="name" />
+	 			<result property="age"  column="age" />
+	 			<result property="sex"  column="sex"  javaType="Boolean"  jdbcType="INTEGER"/>
+	 </resultMap>
+	 
+	 
+	 
+	  <select id="queryAllPerson"  resultType="Person" >
+	 select * from person 
+	 </select>
+	 
+	 
+	 <insert id="insertPerson"   parameterType="Person">
+	 insert into person(name,age,sex) values(#{name},#{age},#{sex})
+	 </insert>
+	 
+	 
+</mapper>
