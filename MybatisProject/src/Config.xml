@@ -5,7 +5,11 @@
 <configuration>
 <properties resource="db.properties" />
 
+<<<<<<< HEAD
 <!-- 开启日志 --><!-- 冲突实力 -->
+=======
+<!-- 开启日志 --><!-- 修改git冲突示例 -->
+>>>>>>> branch 'master' of https://github.com/Li-C-N/eclipsegit.git
 
 <settings>
 
